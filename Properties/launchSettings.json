@@ -16,6 +16,7 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5124",
       "environmentVariables": {
+        "DOTNET_SYSTEM_GLOBALIZATION_INVARIANT": "false",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
@@ -38,4 +39,6 @@
       }
     }
   }
+  
 }
+
