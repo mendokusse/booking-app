@@ -122,13 +122,12 @@ namespace BookingApp.Controllers {
         
         [HttpGet("{id}/photos")]
         public async Task<IActionResult> GetAllPhotosByCabinAsync(int id) {
-            // Проверка существования домика
+
             var cabinExists = await dbContext.Cabins.AnyAsync(c => c.Id == id);
             if (!cabinExists) {
-                return NotFound(); // Если домик не найден
+                return NotFound();
             }
 
-            // Получение фотографий
             var photos = await dbContext.CabinPhotos
                                 .Where(p => p.CabinId == id)
                                 .ToListAsync();

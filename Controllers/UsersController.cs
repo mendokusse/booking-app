@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookingApp.Controllers {
     [ApiController]
-    [Route("api/customer")]
+    [Route("api/user")]
     public class UsersController : ControllerBase {
         private readonly BookingContext dbContext;
         private readonly PasswordHasher<User> passwordHasher;
@@ -114,7 +114,7 @@ namespace BookingApp.Controllers {
             return NoContent();
         }
 
-        [HttpPut("change-password/{id}")]
+        [HttpPut("{id}/change-password")]
         public async Task<IActionResult> ChangePasswordAsync(int id, [FromBody] ChangePasswordDto passwordDto) {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

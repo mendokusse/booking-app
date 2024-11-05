@@ -9,6 +9,7 @@ builder.Services.AddDbContext<BookingContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddControllers();
+builder.Services.AddRazorPages(); 
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -23,6 +24,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles(); 
+
+app.UseRouting();
+
 app.MapControllers();
+app.MapRazorPages();
 
 app.Run();
