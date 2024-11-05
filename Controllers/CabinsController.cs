@@ -120,5 +120,33 @@ namespace BookingApp.Controllers {
         }
 
         
+        [HttpGet("{id}/photos")]
+        public async Task<IActionResult> GetAllPhotosByCabinAsync(int id) {
+            // Проверка существования домика
+            var cabinExists = await dbContext.Cabins.AnyAsync(c => c.Id == id);
+            if (!cabinExists) {
+                return NotFound(); // Если домик не найден
+            }
+
+            // Получение фотографий
+            var photos = await dbContext.CabinPhotos
+                                .Where(p => p.CabinId == id)
+                                .ToListAsync();
+
+            return Ok(photos);
+        }
+
+        [HttpDelete("photos/{id}")]
+        public async Task<IActionResult> DeleteCabinPhotoByIdAsync(int id) {
+            var photo = await dbContext.CabinPhotos.FindAsync(id);
+
+            if(photo == null) return NotFound();
+
+            dbContext.CabinPhotos.Remove(photo);
+            await dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 }
