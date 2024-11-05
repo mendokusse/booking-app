@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using BookingApp.DTOs;
 using BookingApp.Models;
 
-//написать delete-операцию!
-
 namespace BookingApp.Controllers {
     [ApiController]
     [Route("api/booking")]
@@ -73,11 +71,20 @@ namespace BookingApp.Controllers {
             return Ok(booking); 
         }
 
+        private async Task<bool> IsCabinAvailable(int CabinId, DateTime CheckInDate, DateTime CheckOutDate, int? bookingId = null) {
+            return !await dbContext.Bookings
+                            .Where(b => b.CabinId == CabinId && (bookingId == null || b.Id != bookingId))
+                            .AnyAsync(b => (b.CheckInDate < CheckOutDate && CheckInDate < b.CheckOutDate));
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDto bookingDto) {
             if (!ModelState.IsValid) {
                 return BadRequest(ModelState);
             }
+
+            bool isAvailable = await IsCabinAvailable(bookingDto.CabinId, bookingDto.CheckInDate, bookingDto.CheckOutDate);
+            if (!isAvailable) return Conflict("Данный номер уже забронирован на выбранные даты!");
 
             var booking = new Booking {
                 UserId = bookingDto.UserId,
@@ -104,6 +111,9 @@ namespace BookingApp.Controllers {
 
             if (booking == null) return NotFound();
 
+            bool isAvailable = await IsCabinAvailable(bookingDto.CabinId, bookingDto.CheckInDate, bookingDto.CheckOutDate);
+            if (!isAvailable) return Conflict("Данный номер уже забронирован на выбранные даты!");
+
             booking.UserId = bookingDto.UserId;
             booking.CabinId = bookingDto.CabinId;
             booking.CheckInDate = bookingDto.CheckInDate;
@@ -114,5 +124,18 @@ namespace BookingApp.Controllers {
 
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBookingByIdAsync(int id) {
+            var booking = await dbContext.Bookings.FindAsync(id);
+
+            if (booking == null) return NotFound();
+
+            dbContext.Bookings.Remove(booking);
+            await dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 }
