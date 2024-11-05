@@ -136,6 +136,5 @@ namespace BookingApp.Controllers {
 
             return NoContent();
         }
-
     }
 }
