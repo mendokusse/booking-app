@@ -5,8 +5,6 @@ using BookingApp.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-// удаление и апдейт
-
 namespace BookingApp.Controllers {
     [ApiController]
     [Route("service")]
@@ -15,7 +13,7 @@ namespace BookingApp.Controllers {
         private readonly BookingContext dbContext;
 
         public ServicesController(BookingContext dbContext) {
-            this.dbContext = dbontext;
+            this.dbContext = dbContext;
         }
 
         [HttpGet]
@@ -45,6 +43,36 @@ namespace BookingApp.Controllers {
             await dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetServiceById), new {id = service.Id}, service);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateServiceById(int id, [FromBody] ServiceDto serviceDto) {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var service = dbContext.Services
+                            .FirstOrDefault(s => s.Id == id);
+
+            if (service == null) return NotFound();
+
+            service.Name = serviceDto.Name;
+            service.Description = serviceDto.Description;
+            service.Price = serviceDto.Price;
+
+            await dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteServiceById(int id) {
+            var service = dbContext.Services.FirstOrDefault(s => s.Id == id);
+
+            if (service == null) return NotFound();
+
+            dbContext.Services.Remove(service);
+            await dbContext.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
